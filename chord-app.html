@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chord Randomizer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 16px;
+    }
+    button {
+      font-size: 18px;
+      padding: 12px;
+      width: 100%;
+      margin-top: 12px;
+    }
+    #result {
+      font-size: 22px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    input[type="file"] {
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+
+<h2>Chord Randomizer</h2>
+
+
+<input type="file" id="csvFile" accept=".csv">
+
+
+<button onclick="roll()">🎲 Re-roll</button>
+
+
+<div id="result"></div>
+
+
+<script>
+let columns = [];
+
+
+document.getElementById("csvFile").addEventListener("change", function(e) {
+  const reader = new FileReader();
+  reader.onload = function() {
+    parseCSV(reader.result);
+    roll(); // auto-roll on load
+  };
+  reader.readAsText(e.target.files[0]);
+});
+
+
+function parseCSV(text) {
+  const rows = text.trim().split("\n").map(r => r.split(","));
+  const colCount = rows[0].length;
+
+
+  columns = Array.from({ length: colCount }, (_, colIndex) =>
+    rows
+      .map(row => row[colIndex]?.trim())
+      .filter(Boolean)
+  );
+}
+
+
+function roll() {
+  if (!columns.length) return;
+
+
+  const picks = columns.map(col =>
+    col[Math.floor(Math.random() * col.length)]
+  );
+
+
+  formatMusically(picks);
+}
+
+
+function formatMusically(picks) {
+  // first two elements are chord + quality
+  let output = "";
+
+
+  if (picks.length >= 2) {
+    output = picks[0] + " " + picks[1];
+    if (picks.length > 2) {
+      output += " – " + picks.slice(2).join(" – ");
+    }
+  } else {
+    output = picks.join(" ");
+  }
+
+
+  document.getElementById("result").innerText = output;
+}
+</script>
+
+
+</body>
+</html>
